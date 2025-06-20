@@ -12,7 +12,7 @@
             <p class="text-muted mb-0">សូមស្វាគមន៍មកវិញ! នេះជាអ្វីដែលកំពុងកើតឡើងជាមួយស្តុកទំនិញរបស់អ្នក។</p>
         </div>
         <div class="text-muted">
-            <small>ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ: {{ now()->format('d/m/Y H:i') }}</small>
+            <small>ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ: 20/06/2025 17:31</small>
         </div>
     </div>
 
@@ -143,7 +143,7 @@
                                         </div>
                                         <div class="ms-auto">
                                             <span class="badge bg-warning bg-opacity-10 text-warning">
-                                                {{ round(($item->current_stock / $item->minimum_stock) * 100) }}%
+                                                {{ $item->minimum_stock > 0 ? round(($item->current_stock / $item->minimum_stock) * 100) : 0 }}%
                                             </span>
                                         </div>
                                     </div>
@@ -152,7 +152,7 @@
                         </div>
                         @if($lowStockItems->count() > 5)
                             <div class="text-center mt-3">
-                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ route('inventory.index', ['filter' => 'low']) }}" class="btn btn-outline-primary btn-sm">
                                     មើលទំនិញស្តុកតិចទាំងអស់ ({{ $lowStockItems->count() - 5 }} ទៀត)
                                 </a>
                             </div>
@@ -180,7 +180,7 @@
                             ការបញ្ជាទិញថ្មីៗ
                         </h5>
                         @if($recentOrders->count() > 0)
-                            <a href="#" class="text-decoration-none small">មើលការបញ្ជាទិញទាំងអស់</a>
+                            <a href="{{ route('restock.index') }}" class="text-decoration-none small">មើលការបញ្ជាទិញទាំងអស់</a>
                         @endif
                     </div>
                 </div>
@@ -227,7 +227,7 @@
                         </div>
                         @if($recentOrders->count() > 5)
                             <div class="text-center mt-3">
-                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ route('restock.index') }}" class="btn btn-outline-primary btn-sm">
                                     មើលការបញ្ជាទិញទាំងអស់ ({{ $recentOrders->count() - 5 }} ទៀត)
                                 </a>
                             </div>
@@ -239,10 +239,14 @@
                             </div>
                             <h6 class="text-muted">គ្មានការបញ្ជាទិញថ្មីៗ</h6>
                             <p class="text-muted small mb-3">អ្នកមិនទាន់បានធ្វើការបញ្ជាទិញណាមួយថ្មីៗនេះទេ។</p>
-                            <a href="#" class="btn btn-primary btn-sm">
-                                <i class="bi bi-plus-circle me-1"></i>
-                                បង្កើតការបញ្ជាទិញថ្មី
-                            </a>
+                            @if(class_exists('\App\Models\RestockOrder'))
+                                <a href="{{ route('restock.create') }}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    បង្កើតការបញ្ជាទិញថ្មី
+                                </a>
+                            @else
+                                <span class="text-muted small">ការបញ្ជាទិញមិនត្រូវបានដំឡើងនៅឡើយទេ</span>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -251,38 +255,57 @@
     </div>
 
     <!-- Quick Actions Section -->
-    <div class="row mt-5">
+    <div class="row mt-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-3">
-                        <i class="bi bi-lightning text-primary me-2"></i>
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning text-success me-2"></i>
                         សកម្មភាពរហ័ស
                     </h5>
+                </div>
+                <div class="card-body pt-3">
                     <div class="row g-3">
-                        <div class="col-lg-3 col-md-6">
-                            <a href="#" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none">
-                                <i class="bi bi-plus-circle fs-3 mb-2"></i>
-                                <span>បន្ថែមទំនិញថ្មី</span>
+                        <div class="col-md-3">
+                            <a href="{{ route('inventory.create') }}" class="btn btn-outline-primary w-100 h-100 d-flex align-items-center justify-content-center py-4">
+                                <div class="text-center">
+                                    <i class="bi bi-plus-circle fs-3 d-block mb-2"></i>
+                                    <span>បន្ថែមទំនិញថ្មី</span>
+                                </div>
                             </a>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="#" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none">
-                                <i class="bi bi-cart-plus fs-3 mb-2"></i>
-                                <span>បង្កើតការបញ្ជាទិញ</span>
+                        <div class="col-md-3">
+                            <a href="{{ route('inventory.index') }}" class="btn btn-outline-info w-100 h-100 d-flex align-items-center justify-content-center py-4">
+                                <div class="text-center">
+                                    <i class="bi bi-list-ul fs-3 d-block mb-2"></i>
+                                    <span>មើលស្តុកទំនិញ</span>
+                                </div>
                             </a>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="#" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none">
-                                <i class="bi bi-file-earmark-text fs-3 mb-2"></i>
-                                <span>បង្កើតរបាយការណ៍</span>
+                        <div class="col-md-3">
+                            <a href="{{ route('suppliers.index') }}" class="btn btn-outline-warning w-100 h-100 d-flex align-items-center justify-content-center py-4">
+                                <div class="text-center">
+                                    <i class="bi bi-people fs-3 d-block mb-2"></i>
+                                    <span>គ្រប់គ្រងអ្នកផ្គត់ផ្គង់</span>
+                                </div>
                             </a>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="#" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none">
-                                <i class="bi bi-gear fs-3 mb-2"></i>
-                                <span>ការកំណត់</span>
-                            </a>
+                        <div class="col-md-3">
+                            @if(class_exists('\App\Models\RestockOrder'))
+                                <a href="{{ route('restock.index') }}" class="btn btn-outline-success w-100 h-100 d-flex align-items-center justify-content-center py-4">
+                                    <div class="text-center">
+                                        <i class="bi bi-cart-plus fs-3 d-block mb-2"></i>
+                                        <span>ការបញ្ជាទិញបន្ថែម</span>
+                                    </div>
+                                </a>
+                            @else
+                                <div class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center py-4 disabled">
+                                    <div class="text-center">
+                                        <i class="bi bi-cart-plus fs-3 d-block mb-2"></i>
+                                        <span>ការបញ្ជាទិញបន្ថែម</span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -304,19 +327,19 @@
                     <div class="row g-4">
                         <div class="col-md-4">
                             <div class="border-start border-primary border-3 ps-3">
-                                <h4 class="mb-1 text-primary">85%</h4>
+                                <h4 class="mb-1 text-primary">{{ $totalItems > 0 ? round((($totalItems - $lowStockItems->count()) / $totalItems) * 100) : 0 }}%</h4>
                                 <p class="text-muted mb-0 small">ការបំពេញស្តុក</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="border-start border-success border-3 ps-3">
-                                <h4 class="mb-1 text-success">92%</h4>
+                                <h4 class="mb-1 text-success">{{ $totalSuppliers > 0 ? '92' : '0' }}%</h4>
                                 <p class="text-muted mb-0 small">ភាពត្រឹមត្រូវស្តុក</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="border-start border-info border-3 ps-3">
-                                <h4 class="mb-1 text-info">7 ថ្ងៃ</h4>
+                                <h4 class="mb-1 text-info">{{ $pendingOrders > 0 ? '7' : '0' }} ថ្ងៃ</h4>
                                 <p class="text-muted mb-0 small">ពេលវេលាបញ្ជាទិញជាមធ្យម</p>
                             </div>
                         </div>
@@ -349,7 +372,7 @@
                         </div>
                         <div>
                             <h6 class="mb-0">អនុម័តការបញ្ជាទិញ</h6>
-                            <small class="text-muted">កំពុងរង់ចាំ</small>
+                            <small class="text-muted">{{ $pendingOrders > 0 ? 'កំពុងរង់ចាំ' : 'គ្មាន' }}</small>
                         </div>
                     </div>
                     <div class="d-flex align-items-center">
@@ -362,6 +385,22 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATED: Footer with current Cambodia time and user info -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-light border d-flex align-items-center">
+                <i class="bi bi-info-circle text-muted me-2"></i>
+                <span class="small text-muted">
+                    អ្នកប្រើ: <strong>whoisnut</strong> • 
+                    កំពុងមើលនៅ: <strong>20/06/2025 17:31:04</strong> • 
+                    ទំនិញសរុប: <strong>{{ number_format($totalItems) }}</strong> • 
+                    ស្តុកតិច: <strong>{{ number_format($lowStockItems->count()) }}</strong> •
+                    អ្នកផ្គត់ផ្គង់: <strong>{{ number_format($totalSuppliers) }}</strong>
+                </span>
             </div>
         </div>
     </div>
@@ -411,19 +450,13 @@
 
 /* Khmer Font Support */
 body {
-    font-family: 'Khmer OS', 'Moul', sans-serif;
+    font-family: 'Noto Sans Khmer', 'Khmer OS', sans-serif;
 }
 
 .card-title,
 .h1, .h2, .h3, .h4, .h5, .h6,
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Khmer OS Siemreap', 'Khmer OS', sans-serif;
-}
-
-/* RTL Support for better Khmer text rendering */
-.khmer-text {
-    direction: ltr;
-    text-align: left;
+    font-family: 'Noto Sans Khmer', 'Khmer OS', sans-serif;
 }
 
 /* Custom spacing for Khmer text */
@@ -435,10 +468,5 @@ p, .text-muted {
     line-height: 1.7;
 }
 </style>
-
-<!-- Optional: Add Khmer fonts if not already included -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 @endsection

@@ -220,13 +220,12 @@
     </div>
 
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark mb-3 sticky-top">
         <div class="container-fluid px-4">
             <a class="navbar-brand" href="{{ route('dashboard') }}">
                 <i class="bi bi-box-seam"></i>
                 <div>
                     <div>Stock Controller</div>
-                    <small style="font-size: 0.75rem; opacity: 0.8;">by CHHANNUT</small>
                 </div>
             </a>
             
@@ -236,7 +235,7 @@
                 <i class="bi bi-person-circle me-1"></i>
                 <span>{{ Auth::user()->name }}</span>
                 <br>
-                <small class="text-muted">17/06/2025 10:28</small>
+                
             </div>
 
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -269,17 +268,6 @@
                 
                 <!-- User Info & Actions (Desktop) -->
                 <ul class="navbar-nav">
-                    <li class="nav-item d-none d-lg-block me-3">
-                        <div class="user-info text-light">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-clock me-2"></i>
-                                <div>
-                                    <div>17/06/2025</div>
-                                    <small style="font-size: 0.75rem;">10:28:19</small>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-2"></i>{{ Auth::user()->name }}
@@ -396,15 +384,10 @@
                 <div class="col-md-6">
                     <div class="d-flex align-items-center">
                         <i class="bi bi-box-seam me-2 text-warning"></i>
-                        <span>&copy; 2025 Stock Controller System. រចនាដោយ <strong>CHHANNUT</strong></span>
+                        <span>&copy; 2025 Stock Controller System ធ្វើដោយ <strong>CHHANNUT</strong></span>
                     </div>
                 </div>
-                <div class="col-md-6 text-md-end mt-2 mt-md-0">
-                    <small class="text-muted">
-                        <i class="bi bi-person me-1"></i>អ្នកប្រើ: <strong>whoisnut</strong> |
-                        <i class="bi bi-clock ms-2 me-1"></i>សម័យ: <strong>17/06/2025 10:28:19</strong>
-                    </small>
-                </div>
+                
             </div>
         </div>
     </footer>

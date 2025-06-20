@@ -325,13 +325,13 @@
                     <div class="row g-3 text-center">
                         <div class="col-6">
                             <div class="border rounded p-3">
-                                <h4 class="text-primary mb-1">{{ $totalItems ?? 0 }}</h4>
+                                <h4 class="text-primary mb-1">{{ \App\Models\InventoryItem::count() }}</h4>
                                 <small class="text-muted">ទំនិញសរុប</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="border rounded p-3">
-                                <h4 class="text-warning mb-1">{{ $lowStockItems ?? 0 }}</h4>
+                                <h4 class="text-warning mb-1">{{ \App\Models\InventoryItem::needingRestock()->count() }}</h4>
                                 <small class="text-muted">ស្តុកតិច</small>
                             </div>
                         </div>
@@ -344,7 +344,7 @@
                         </div>
                         <div class="d-flex align-items-center text-muted small">
                             <i class="bi bi-clock me-2"></i>
-                            <span>17/06/2025 10:38:10</span>
+                            <span>17/06/2025 10:53:43</span>
                         </div>
                     </div>
                 </div>
@@ -388,7 +388,7 @@
                 <i class="bi bi-info-circle text-muted me-2"></i>
                 <span class="small text-muted">
                     អ្នកប្រើ: <strong>whoisnut</strong> • 
-                    កំពុងបង្កើតនៅ: <strong>17/06/2025 10:38:10</strong> • 
+                    កំពុងបង្កើតនៅ: <strong>17/06/2025 10:53:43</strong> • 
                     បន្ទាប់ពីបង្កើត អ្នកអាចកែសម្រួលបាននៅពេលក្រោយ
                 </span>
             </div>
@@ -396,6 +396,7 @@
     </div>
 </div>
 
+<!-- Include all CSS and JavaScript from the previous version -->
 <style>
 /* Enhanced Form Styling */
 .form-control:focus,

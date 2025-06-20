@@ -26,9 +26,13 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // Inventory routes
-    Route::resource('inventory', InventoryController::class)->except(['show']);
-    Route::post('/inventory/{item}/update-stock', [InventoryController::class, 'updateStock'])->name('inventory.update-stock');
+    // FIXED: Specific inventory routes before resource routes
+    Route::post('/inventory/{inventory}/update-stock', [InventoryController::class, 'updateStock'])->name('inventory.update-stock');
+    
+    // FIXED: Use 'inventory' as the parameter name to match the route
+    Route::resource('inventory', InventoryController::class)->except(['show'])->parameters([
+        'inventory' => 'inventory'
+    ]);
     
     // Supplier routes
     Route::resource('suppliers', SupplierController::class)->except(['show']);

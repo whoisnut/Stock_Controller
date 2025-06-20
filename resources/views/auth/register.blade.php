@@ -129,16 +129,6 @@
                             </div>
                         </div>
                         
-                        <!-- Terms and Conditions -->
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="terms" required>
-                                <label class="form-check-label small" for="terms">
-                                    ខ្ញុំយល់ព្រមនិង<a href="#" class="text-decoration-none">លក្ខខណ្ឌនិងការប្រើប្រាស់</a> 
-                                    និង<a href="#" class="text-decoration-none">គោលការណ៍ភាពឯកជន</a>
-                                </label>
-                            </div>
-                        </div>
                         
                         <!-- Submit Button -->
                         <div class="d-grid mb-3">
@@ -178,10 +168,7 @@
                                 <i class="bi bi-shield-check me-1"></i>
                                 ការពារដោយសុវត្ថិភាព
                             </div>
-                            <div>
-                                <i class="bi bi-clock me-1"></i>
-                                17/06/2025 10:40:41
-                            </div>
+
                             <div>
                                 <i class="bi bi-globe me-1"></i>
                                 Stock Controller System

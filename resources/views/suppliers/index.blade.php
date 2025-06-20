@@ -353,21 +353,6 @@
         </div>
     </div>
 
-    <!-- Footer Info -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="alert alert-light border d-flex align-items-center">
-                <i class="bi bi-info-circle text-muted me-2"></i>
-                <span class="small text-muted">
-                    អ្នកប្រើ: <strong>whoisnut</strong> • 
-                    កំពុងមើលនៅ: <strong>17/06/2025 10:17</strong> • 
-                    សរុប: <strong>{{ $suppliers->count() }} អ្នកផ្គត់ផ្គង់</strong>
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
 /* Card Hover Effects */
 .card-hover {

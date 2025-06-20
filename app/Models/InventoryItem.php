@@ -9,17 +9,22 @@ class InventoryItem extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
     protected $fillable = [
         'name',
-        'description',
         'sku',
+        'description',
         'current_stock',
         'minimum_stock',
         'price',
         'supplier_id'
+    ];
+
+    protected $casts = [
+        'current_stock' => 'integer',
+        'minimum_stock' => 'integer',
+        'price' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     /**
@@ -31,7 +36,7 @@ class InventoryItem extends Model
     }
 
     /**
-     * Get restock orders for this item
+     * FIXED: Get restock orders for this item
      */
     public function restockOrders()
     {
@@ -39,7 +44,7 @@ class InventoryItem extends Model
     }
 
     /**
-     * Check if item needs restocking (current stock below minimum)
+     * Check if item needs restocking
      */
     public function needsRestock()
     {
@@ -47,10 +52,65 @@ class InventoryItem extends Model
     }
 
     /**
-     * Get items that need restocking
+     * Static method to get items needing restock
      */
     public static function needingRestock()
     {
-        return static::whereColumn('current_stock', '<=', 'minimum_stock')->get();
+        return static::whereColumn('current_stock', '<=', 'minimum_stock');
+    }
+
+    /**
+     * Scope for items needing restock
+     */
+    public function scopeNeedingRestock($query)
+    {
+        return $query->whereColumn('current_stock', '<=', 'minimum_stock');
+    }
+
+    /**
+     * Get total stock value
+     */
+    public function getStockValueAttribute()
+    {
+        return $this->current_stock * $this->price;
+    }
+
+    /**
+     * Check if item is out of stock
+     */
+    public function isOutOfStock()
+    {
+        return $this->current_stock <= 0;
+    }
+
+    /**
+     * Get stock status
+     */
+    public function getStockStatus()
+    {
+        if ($this->isOutOfStock()) {
+            return 'out_of_stock';
+        }
+        
+        if ($this->needsRestock()) {
+            return 'low_stock';
+        }
+        
+        return 'in_stock';
+    }
+
+    /**
+     * Get stock status label
+     */
+    public function getStockStatusLabel()
+    {
+        switch ($this->getStockStatus()) {
+            case 'out_of_stock':
+                return 'អស់ស្តុក';
+            case 'low_stock':
+                return 'ស្តុកតិច';
+            default:
+                return 'មានស្តុក';
+        }
     }
 }

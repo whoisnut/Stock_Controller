@@ -30,8 +30,8 @@
                             <i class="bi bi-info-circle me-2"></i>
                             <div>
                                 <strong>សម្រាប់ការសាកល្បង:</strong>
-                                <br><small>អ៊ីម៉ែល: demo@stockcontroller.com</small>
-                                <br><small>ពាក្យសម្ងាត់: password123</small>
+                                <br><small>អ៊ីម៉ែល: managerone@example.com</small>
+                                <br><small>ពាក្យសម្ងាត់: 11111111</small>
                             </div>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
                                        class="form-control border-start-0 @error('email') is-invalid @enderror" 
                                        id="email" 
                                        name="email" 
-                                       value="{{ old('email', 'demo@stockcontroller.com') }}" 
+                                       value="{{ old('email', 'admin@example.com') }}" 
                                        required
                                        placeholder="បញ្ចូលអ៊ីម៉ែលរបស់អ្នក"
                                        autocomplete="email"
@@ -110,24 +110,6 @@
                         </div>
                     </form>
                     
-                    <!-- Quick Login Options -->
-                    <div class="mb-4">
-                        <div class="text-center mb-3">
-                            <small class="text-muted">ការចូលរហ័ស</small>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="quickLogin('admin')">
-                                    <i class="bi bi-person-gear me-1"></i>Admin
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-success btn-sm w-100" onclick="quickLogin('demo')">
-                                    <i class="bi bi-person me-1"></i>Demo
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                     
                     <!-- Divider -->
                     <div class="text-center my-4">
@@ -150,126 +132,7 @@
                 </div>
             </div>
             
-            <!-- System Info -->
-            <div class="text-center mt-4">
-                <div class="card border-0 bg-light">
-                    <div class="card-body py-3">
-                        <div class="d-flex justify-content-center align-items-center gap-4 text-muted small">
-                            <div>
-                                <i class="bi bi-shield-check me-1"></i>
-                                ការពារដោយសុវត្ថិភាព
-                            </div>
-                            <div>
-                                <i class="bi bi-clock me-1"></i>
-                                17/06/2025 10:43:39
-                            </div>
-                            <div>
-                                <i class="bi bi-server me-1"></i>
-                                ស្ថានភាព: <span class="text-success">សកម្ម</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Last Activity Info -->
-            <div class="text-center mt-3">
-                <div class="alert alert-light border small">
-                    <i class="bi bi-info-circle text-muted me-2"></i>
-                    <span class="text-muted">
-                        អ្នកប្រើចុងក្រោយ: <strong>whoisnut</strong> • 
-                        ការចូលចុងក្រោយ: <strong>16/06/2025 15:22:14</strong>
-                    </span>
-                </div>
-            </div>
-        </div>
         
-        <!-- Side Information Panel (Hidden on mobile) -->
-        <div class="col-lg-4 d-none d-lg-block">
-            <div class="ps-5">
-                <div class="mb-5">
-                    <h2 class="text-primary mb-3">
-                        <i class="bi bi-box-seam me-2"></i>
-                        Stock Controller System
-                    </h2>
-                    <p class="text-muted lead">
-                        ប្រព័ន្ធគ្រប់គ្រងស្តុកទំនិញទំនើបដោយ CHHANNUT
-                    </p>
-                </div>
-                
-                <!-- Live Statistics -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-transparent border-0">
-                        <h6 class="card-title mb-0">
-                            <i class="bi bi-graph-up text-success me-2"></i>
-                            ស្ថិតិបច្ចុប្បន្ន
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3 text-center">
-                            <div class="col-6">
-                                <div class="border rounded p-3">
-                                    <h4 class="text-primary mb-1">247</h4>
-                                    <small class="text-muted">ទំនិញសរុប</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="border rounded p-3">
-                                    <h4 class="text-warning mb-1">23</h4>
-                                    <small class="text-muted">ស្តុកតិច</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3 pt-3 border-top text-center">
-                            <div class="text-muted small">
-                                <i class="bi bi-arrow-clockwise me-1"></i>
-                                ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ: 10:43:39
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Recent Activity -->
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-transparent border-0">
-                        <h6 class="card-title mb-0">
-                            <i class="bi bi-clock-history text-info me-2"></i>
-                            សកម្មភាពថ្មីៗ
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="timeline">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle me-3">
-                                    <i class="bi bi-plus text-primary small"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small fw-semibold">បានបន្ថែមទំនិញថ្មី</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">២ នាទីមុន</div>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="avatar-sm bg-success bg-opacity-10 rounded-circle me-3">
-                                    <i class="bi bi-arrow-up text-success small"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small fw-semibold">បានធ្វើបច្ចុប្បន្នភាពស្តុក</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">៥ នាទីមុន</div>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle me-3">
-                                    <i class="bi bi-exclamation-triangle text-warning small"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small fw-semibold">ការជូនដំណឹងស្តុកតិច</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">១០ នាទីមុន</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -465,11 +328,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const passwordField = document.getElementById('password');
         
         if (type === 'admin') {
-            emailField.value = 'admin@stockcontroller.com';
-            passwordField.value = 'admin123';
-        } else if (type === 'demo') {
-            emailField.value = 'demo@stockcontroller.com';
-            passwordField.value = 'password123';
+            emailField.value = 'admin@example.com';
+            passwordField.value = 'password';
+        } else if (type === 'user') {
+            emailField.value = 'user@example.com';
+            passwordField.value = 'password';
         }
         
         // Focus on login button

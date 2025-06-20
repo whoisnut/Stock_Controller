@@ -296,8 +296,7 @@
                 <i class="bi bi-info-circle text-muted me-2"></i>
                 <span class="small text-muted">
                     អ្នកប្រើ: <strong>{{ auth()->user()->name ?? 'whoisnut' }}</strong> • 
-                    កំពុងកែសម្រួលនៅ: <strong>{{ now()->format('d/m/Y H:i') }}</strong> • 
-                    ការបង្កើតដំបូង: <strong>{{ $supplier->created_at->format('d/m/Y H:i') }}</strong>
+                   
                 </span>
             </div>
         </div>

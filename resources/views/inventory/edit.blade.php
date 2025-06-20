@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container-fluid px-4">
     <!-- Header Section -->
@@ -11,10 +10,44 @@
             </h1>
             <p class="text-muted mb-0">កែសម្រួលព័ត៌មានទំនិញ: <span class="fw-semibold">{{ $item->name }}</span></p>
         </div>
-        <a href="{{ route('inventory.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> ត្រឡប់ទៅស្តុកទំនិញ
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('inventory.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> ត្រឡប់ទៅស្តុកទំនិញ
+            </a>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="bi bi-trash me-1"></i> លុបទំនិញ
+            </button>
+        </div>
     </div>
+
+    <!-- Success/Error Messages -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
     <div class="row g-4">
         <!-- Main Form -->
@@ -28,7 +61,7 @@
                         </h5>
                         <span class="badge bg-info bg-opacity-10 text-info">
                             <i class="bi bi-clock me-1"></i>
-                            កែសម្រួលចុងក្រោយ: {{ $item->updated_at->format('d/m/Y') }}
+                            កែសម្រួលចុងក្រោយ: {{ $item->updated_at ? $item->updated_at->format('d/m/Y') : 'មិនមាន' }}
                         </span>
                     </div>
                 </div>
@@ -239,13 +272,19 @@
                 </div>
                 <div class="card-body">
                     <!-- Current Status -->
-                    <div class="d-flex align-items-center mb-3 p-3 rounded" style="background-color: {{ $item->needsRestock() ? 'rgba(220, 53, 69, 0.1)' : 'rgba(25, 135, 84, 0.1)' }};">
-                        <div class="avatar-sm bg-{{ $item->needsRestock() ? 'danger' : 'success' }} bg-opacity-10 rounded-2 me-3">
-                            <i class="bi bi-{{ $item->needsRestock() ? 'exclamation-triangle' : 'check-circle' }} text-{{ $item->needsRestock() ? 'danger' : 'success' }}"></i>
+                    @php
+                        $needsRestock = $item->current_stock <= $item->minimum_stock;
+                        $bgColor = $needsRestock ? 'rgba(220, 53, 69, 0.1)' : 'rgba(25, 135, 84, 0.1)';
+                        $statusClass = $needsRestock ? 'danger' : 'success';
+                        $statusIcon = $needsRestock ? 'exclamation-triangle' : 'check-circle';
+                    @endphp
+                    <div class="d-flex align-items-center mb-3 p-3 rounded" style="background-color: {{ $bgColor }}">
+                        <div class="avatar-sm bg-{{ $statusClass }} bg-opacity-10 rounded-2 me-3">
+                            <i class="bi bi-{{ $statusIcon }} text-{{ $statusClass }}"></i>
                         </div>
                         <div>
                             <h6 class="mb-0">ស្ថានភាពបច្ចុប្បន្ន</h6>
-                            @if($item->needsRestock())
+                            @if($needsRestock)
                                 <span class="badge bg-danger bg-opacity-10 text-danger">
                                     <i class="bi bi-exclamation-triangle me-1"></i>ស្តុកតិច
                                 </span>
@@ -265,50 +304,46 @@
                         </h6>
                         <div class="row g-2 text-center">
                             <div class="col-6">
-                                <div class="fw-bold text-primary">{{ number_format($item->current_stock) }}</div>
+                                <div class="fw-bold text-primary" id="currentStockDisplay">{{ number_format($item->current_stock) }}</div>
                                 <small class="text-muted">បច្ចុប្បន្ន</small>
                             </div>
                             <div class="col-6">
-                                <div class="fw-bold text-warning">{{ number_format($item->minimum_stock) }}</div>
+                                <div class="fw-bold text-warning" id="minimumStockDisplay">{{ number_format($item->minimum_stock) }}</div>
                                 <small class="text-muted">អប្បបរមា</small>
                             </div>
                         </div>
                         @if($item->current_stock > 0)
+                            @php
+                                $progressPercentage = min(100, ($item->current_stock / max(1, $item->minimum_stock * 2)) * 100);
+                                $progressClass = $needsRestock ? 'warning' : 'success';
+                            @endphp
                             <div class="progress mt-2" style="height: 8px;">
-                                <div class="progress-bar bg-{{ $item->needsRestock() ? 'warning' : 'success' }}" 
-                                     style="width: {{ min(100, ($item->current_stock / ($item->minimum_stock * 2)) * 100) }}%"></div>
+                                <div class="progress-bar bg-{{ $progressClass }}" 
+                                     id="stockProgressBar"
+                                     style="width: {{ $progressPercentage }}%"></div>
                             </div>
                         @endif
                     </div>
                     
-                    <!-- Timestamps -->
+                    <!-- FIXED: Timestamps with null checking -->
                     <div class="row g-3 mb-3">
                         <div class="col-6">
                             <div class="text-center p-2 border rounded">
-                                <h6 class="text-success mb-1">{{ $item->created_at->format('d/m/Y') }}</h6>
+                                <h6 class="text-success mb-1">
+                                    {{ $item->created_at ? $item->created_at->format('d/m/Y') : 'មិនមាន' }}
+                                </h6>
                                 <small class="text-muted">បានបង្កើត</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="text-center p-2 border rounded">
-                                <h6 class="text-warning mb-1">{{ $item->updated_at->format('d/m/Y') }}</h6>
+                                <h6 class="text-warning mb-1">
+                                    {{ $item->updated_at ? $item->updated_at->format('d/m/Y') : 'មិនមាន' }}
+                                </h6>
                                 <small class="text-muted">កែសម្រួលចុងក្រោយ</small>
                             </div>
                         </div>
                     </div>
-                    
-                    @if($item->restockOrders->count() > 0)
-                        <div class="d-flex align-items-center p-3 bg-info bg-opacity-10 rounded">
-                            <div class="avatar-sm bg-info bg-opacity-20 rounded-2 me-3">
-                                <i class="bi bi-cart-check text-info"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 text-info">{{ $item->restockOrders->count() }}</h6>
-                                <small class="text-muted">ការបញ្ជាទិញថ្មីៗ</small>
-                                <br><small class="text-muted">ការបញ្ជាទិញសរុបសម្រាប់ទំនិញនេះ</small>
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
             
@@ -322,12 +357,6 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        @if($item->needsRestock())
-                            <a href="{{ route('restock.create') }}?item_id={{ $item->id }}" class="btn btn-outline-warning btn-sm">
-                                <i class="bi bi-cart-plus me-1"></i>
-                                បញ្ជាទិញបន្ថែម
-                            </a>
-                        @endif
                         <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#stockModal">
                             <i class="bi bi-arrow-up-circle me-1"></i>
                             ធ្វើបច្ចុប្បន្នភាពស្តុក
@@ -352,7 +381,7 @@
                     <div class="row g-3 text-center">
                         <div class="col-12">
                             <div class="border rounded p-3">
-                                <h4 class="text-success mb-1">${{ number_format($item->current_stock * $item->price, 2) }}</h4>
+                                <h4 class="text-success mb-1" id="totalValueDisplay">${{ number_format($item->current_stock * $item->price, 2) }}</h4>
                                 <small class="text-muted">តម្លៃស្តុកសរុប</small>
                             </div>
                         </div>
@@ -363,7 +392,7 @@
     </div>
 
     <!-- Stock Update Modal -->
-    <div class="modal fade" id="stockModal" tabindex="-1">
+    <div class="modal fade" id="stockModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -373,12 +402,12 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form method="POST" action="{{ route('inventory.update', $item->id) }}">
+                <form method="POST" action="{{ route('inventory.update-stock', $item) }}" id="stockUpdateForm">
                     @csrf
                     <div class="modal-body">
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            <strong>ស្តុកបច្ចុប្បន្ន:</strong> {{ number_format($item->current_stock) }}
+                            <strong>ស្តុកបច្ចុប្បន្ន:</strong> <span id="modalCurrentStock">{{ number_format($item->current_stock) }}</span>
                         </div>
                         <div class="mb-3">
                             <label for="quantity" class="form-label fw-semibold">
@@ -400,6 +429,11 @@
                                 <option value="remove">ដកស្តុក</option>
                             </select>
                         </div>
+                        <div class="mb-3" id="previewSection" style="display: none;">
+                            <div class="alert alert-light border">
+                                <strong>ស្តុកបន្ទាប់ពីការកែប្រែ:</strong> <span id="previewStock">0</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -414,15 +448,54 @@
         </div>
     </div>
 
-    <!-- Footer Info -->
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        លុបទំនិញ
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="text-center">
+                        តើអ្នកពិតជាចង់លុប <strong>{{ $item->name }}</strong> មែនទេ?
+                    </p>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ! ទំនិញនេះនឹងត្រូវបានលុបចេញពីប្រព័ន្ធទាំងស្រុង។</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        បោះបង់
+                    </button>
+                    <form method="POST" action="{{ route('inventory.destroy', $item) }}" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>លុបទំនិញ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIXED: Footer Info with current date/time -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="alert alert-light border d-flex align-items-center">
                 <i class="bi bi-info-circle text-muted me-2"></i>
                 <span class="small text-muted">
                     អ្នកប្រើ: <strong>whoisnut</strong> • 
-                    កំពុងកែសម្រួលនៅ: <strong>17/06/2025 10:32:28</strong> • 
-                    ការបង្កើតដំបូង: <strong>{{ $item->created_at->format('d/m/Y H:i') }}</strong>
+                    កំពុងកែសម្រួលនៅ: <strong>20/06/2025 17:19:36</strong> • 
+                    ការបង្កើតដំបូង: <strong>{{ $item->created_at ? $item->created_at->format('d/m/Y H:i') : 'មិនមាន' }}</strong>
                 </span>
             </div>
         </div>
@@ -541,28 +614,56 @@ body {
 }
 </style>
 
-<!-- JavaScript for Enhanced Functionality -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Current stock value for calculations
+    const currentStock = {{ $item->current_stock }};
+    const currentPrice = {{ $item->price }};
+    
     // Form validation
     const form = document.querySelector('.needs-validation');
-    form.addEventListener('submit', function(e) {
-        if (!form.checkValidity()) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        form.classList.add('was-validated');
-    }, false);
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
     
     // Stock level indicator update
     const currentStockInput = document.getElementById('current_stock');
     const minimumStockInput = document.getElementById('minimum_stock');
+    const priceInput = document.getElementById('price');
     
     function updateStockIndicator() {
         const current = parseInt(currentStockInput.value) || 0;
         const minimum = parseInt(minimumStockInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
         
-        // You can add visual feedback here based on stock levels
+        // Update displays
+        if (document.getElementById('currentStockDisplay')) {
+            document.getElementById('currentStockDisplay').textContent = new Intl.NumberFormat().format(current);
+        }
+        if (document.getElementById('minimumStockDisplay')) {
+            document.getElementById('minimumStockDisplay').textContent = new Intl.NumberFormat().format(minimum);
+        }
+        if (document.getElementById('totalValueDisplay')) {
+            document.getElementById('totalValueDisplay').textContent = '$' + (current * price).toFixed(2);
+        }
+        
+        // Update progress bar
+        const progressBar = document.getElementById('stockProgressBar');
+        if (progressBar && minimum > 0) {
+            const percentage = Math.min(100, (current / (minimum * 2)) * 100);
+            progressBar.style.width = percentage + '%';
+            
+            // Update color based on stock level
+            progressBar.className = 'progress-bar bg-' + (current <= minimum ? 'warning' : 'success');
+        }
+        
+        // Visual feedback for stock input
         if (current <= minimum) {
             currentStockInput.classList.add('border-warning');
             currentStockInput.classList.remove('border-success');
@@ -572,26 +673,92 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    currentStockInput.addEventListener('input', updateStockIndicator);
-    minimumStockInput.addEventListener('input', updateStockIndicator);
+    if (currentStockInput) currentStockInput.addEventListener('input', updateStockIndicator);
+    if (minimumStockInput) minimumStockInput.addEventListener('input', updateStockIndicator);
+    if (priceInput) priceInput.addEventListener('input', updateStockIndicator);
     
     // Initialize stock indicator
     updateStockIndicator();
     
     // Auto-format price input
-    const priceInput = document.getElementById('price');
-    priceInput.addEventListener('blur', function() {
-        const value = parseFloat(this.value);
-        if (!isNaN(value)) {
-            this.value = value.toFixed(2);
-        }
-    });
+    if (priceInput) {
+        priceInput.addEventListener('blur', function() {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                this.value = value.toFixed(2);
+                updateStockIndicator();
+            }
+        });
+    }
     
     // SKU uppercase transformation
     const skuInput = document.getElementById('sku');
-    skuInput.addEventListener('input', function() {
-        this.value = this.value.toUpperCase();
-    });
+    if (skuInput) {
+        skuInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+    
+    // Stock Update Modal Logic
+    const quantityInput = document.getElementById('quantity');
+    const actionSelect = document.getElementById('action');
+    const previewSection = document.getElementById('previewSection');
+    const stockForm = document.getElementById('stockUpdateForm');
+    
+    function updateStockPreview() {
+        if (quantityInput && actionSelect) {
+            const quantity = parseInt(quantityInput.value) || 0;
+            const action = actionSelect.value;
+            
+            if (quantity > 0) {
+                let newStock = currentStock;
+                if (action === 'add') {
+                    newStock = currentStock + quantity;
+                } else if (action === 'remove') {
+                    newStock = Math.max(0, currentStock - quantity);
+                }
+                
+                previewSection.style.display = 'block';
+                
+                // Warning for negative stock
+                if (action === 'remove' && quantity > currentStock) {
+                    previewSection.innerHTML = '<div class="alert alert-warning border"><i class="bi bi-exclamation-triangle me-1"></i><strong>ការព្រមាន:</strong> បរិមាណដកលើសពីស្តុកបច្ចុប្បន្ន។ ស្តុកនឹងក្លាយជា 0</div>';
+                } else {
+                    previewSection.innerHTML = '<div class="alert alert-light border"><strong>ស្តុកបន្ទាប់ពីការកែប្រែ:</strong> <span>' + new Intl.NumberFormat().format(newStock) + '</span></div>';
+                }
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+    }
+    
+    if (quantityInput) quantityInput.addEventListener('input', updateStockPreview);
+    if (actionSelect) actionSelect.addEventListener('change', updateStockPreview);
+    
+    // Form validation for stock update
+    if (stockForm) {
+        stockForm.addEventListener('submit', function(e) {
+            const quantity = parseInt(quantityInput.value);
+            
+            if (!quantity || quantity <= 0) {
+                e.preventDefault();
+                alert('សូមបញ្ចូលបរិមាណដែលត្រឹមត្រូវ');
+                quantityInput.focus();
+                return false;
+            }
+        });
+    }
+    
+    // Reset modal form when hidden
+    const stockModal = document.getElementById('stockModal');
+    if (stockModal) {
+        stockModal.addEventListener('hidden.bs.modal', function () {
+            quantityInput.value = '';
+            actionSelect.value = 'add';
+            previewSection.style.display = 'none';
+            stockForm.classList.remove('was-validated');
+        });
+    }
 });
 </script>
 
